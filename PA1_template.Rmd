@@ -8,11 +8,22 @@ output:
 
 ## Loading and preprocessing the data
 
-
+```{r}
+activity <- read.csv('activity.csv')
+activity <- na.omit(activity)
+```
 
 ## What is mean total number of steps taken per day?
-
-
+```{r}
+library('knitr')
+plotdata <- aggregate(activity[c("steps")], list(date = activity$date), sum)
+kable(plotdata, format = "pandoc", digit = 2, align = 'l', caption = "Total Number of Steps Taken Per Day", col.names = c("Date", "Steps"))
+```
+### Histogram
+```{r}
+data1 <- subset(activity, activity$date == "2012-10-17")
+hist(data1$steps)
+```
 
 ## What is the average daily activity pattern?
 
