@@ -9,8 +9,8 @@ output:
 ## Loading and preprocessing the data
 
 ```{r}
-activity <- read.csv('activity.csv')
-activity <- na.omit(activity)
+activity1 <- read.csv('activity.csv')
+activity <- na.omit(activity1)
 ```
 
 ## What is mean total number of steps taken per day?
@@ -19,18 +19,53 @@ library('knitr')
 plotdata <- aggregate(activity[c("steps")], list(date = activity$date), sum)
 kable(plotdata, format = "pandoc", digit = 2, align = 'l', caption = "Total Number of Steps Taken Per Day", col.names = c("Date", "Steps"))
 ```
-### Histogram
+
 ```{r}
-data1 <- subset(activity, activity$date == "2012-10-17")
-hist(data1$steps)
+# code to plot histogram
+hist(plotdata$steps, xlab = "Total number of steps taken each day", main = "Histogram of the Total Number of Steps Taken Each Day", col = "Blue")
 ```
 
+```{r}
+#code to calculate the mean and median of the total number of steps taken each day
+means_steps <- format(mean(plotdata$steps), digits = 1)
+median_steps <- median(plotdata$steps)
+```
+#### The mean of the total number of steps taken each day is `r means_steps`
+#### The median of the total number of steps taken each day is `r median_steps`
+
 ## What is the average daily activity pattern?
+```{r}
+timeseries <- aggregate(activity[c("steps")], list(interval = activity$interval), mean)
+plot(timeseries$interval, timeseries$steps, type="l", xlab = "Interval", ylab = "Average Number of Steps Taken", main = "Average Daily Activity Pattern")
 
+# find which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps
+max_steps_interval = timeseries$interval[which.max(timeseries$steps)]
+```
 
+#### Interval, on average across all the days in the dataset that contains the maximum number of steps is `r max_steps_interval`
 
 ## Imputing missing values
+```{r}
+missing_values <- sum(is.na(activity1))
+```
+#### Number of missing values = `r missing_values`
+```{r}
+for (i in 1:nrow(activity1)) {
+    if (is.na (activity1$steps[i])) {
+         activity1$steps[i] <- subset(timeseries, timeseries$interval == activity1$interval[i])$steps
+    }
+}
+plotdata <- aggregate(activity1[c("steps")], list(date = activity1$date), sum)
+hist(plotdata$steps, xlab = "Total number of steps taken each day", main = "Histogram of the Total Number of Steps Taken Each Day", col = "Blue")
+```
 
-
+```{r}
+#code to calculate the mean and median of the total number of steps taken each day
+means_steps <- format(mean(plotdata$steps), digits = 1)
+median_steps <- format(median(plotdata$steps), digits = 1)
+```
+#### The mean of the total number of steps taken each day is `r means_steps`
+#### The median of the total number of steps taken each day is `r median_steps`
+#### Only the median is different from the first part of this assignment. Imputing missing values has minimal impact on the results. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
